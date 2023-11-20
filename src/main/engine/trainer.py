@@ -14,27 +14,27 @@ from engine.metrics.metrics_interface import select_acc
 
 class Trainer(object):
     def __init__(self, args, model, train_loader, val_loader):
-        self.setup_seed(args.seed)
+        self.__setup_seed(args.seed)
         self.__logger = Logger(args)
         self.__loss_function = select_loss(args)
         self.__acc_function = select_acc(args)
         self.__train_loader = train_loader
         self.__val_loader = val_loader
         self.__start_epoch = 1
-        self.__end_epochs = args.epochs
+        self.__end_epoch = args.epochs
 
-        train_status = 'Normal'
+        train_mode = 'Normal'
         train_status_logs = []
 
         # loading model
         self.__model = model
         if args.pretrained_weights_path is not None:
-            train_status = 'Continuance'
+            train_mode = 'Transfer learning'
             self.__model.load_state_dict(torch.load(args.pretrained_weights_path), strict=args.is_load_strict)
             train_status_logs.append('>>> Loaded pretrained weights successfully!')
 
         if args.checkpoint_path is not None:
-            train_status = 'Restoration'
+            train_mode = 'Resume training from checkpoint'
             checkpoint = torch.load(args.checkpoint_path)
             self.__start_epoch = checkpoint['epoch'] + 1
             self.__model.load_state_dict(checkpoint['model_state_dict'], strict=args.is_load_strict)
@@ -43,15 +43,15 @@ class Trainer(object):
             train_status_logs.append('>>> Resumed previous best score successfully!')
 
         if len(args.gpus) == 0:
-            gpu_status = 'None-GPU'
+            gpu_mode = 'None-GPU'
             self.device = torch.device('cpu')
             pass
         elif len(args.gpus) == 1:
-            gpu_status = 'Single-GPU'
+            gpu_mode = 'Single-GPU'
             self.device = torch.device('cuda:{}'.format(args.gpus[0]))
             self.__model.to(self.device)
         else:
-            gpu_status = 'Multi-GPU'
+            gpu_mode = 'Multi-GPU'
             self.__model = torch.nn.DataParallel(self.__model, device_ids=args.gpus, output_device=args.gpus[0])
 
         # initialize the optimizer
@@ -77,18 +77,18 @@ class Trainer(object):
             if param.requires_grad:
                 print('\t', name)
         print('==========' * 10)
-        print('Train Status: ' + train_status)
-        print('GPU   Status: ' + gpu_status)
+        print('Train Mode: ' + train_mode)
+        print('GPU   Mode: ' + gpu_mode)
         for train_status_log in train_status_logs:
             print(train_status_log)
         print('==========' * 10)
 
     def train(self):
         print('>>>Start Train')
-        for epoch in range(self.__start_epoch, self.__end_epochs + 1):
+        for epoch in range(self.__start_epoch, self.__end_epoch + 1):
             # train for one epoch
             start_time = datetime.datetime.now()
-            self.print_now_time('Epoch {0} / {1}'.format(epoch, self.__end_epochs))
+            self.__print_now_time('Epoch {0} / {1}'.format(epoch, self.__end_epoch))
             self.__train_per_epoch()
             self.__val_per_epoch()
             self.__logger.save_checkpoint(epoch, self.__model, self.__optimizer, self.scheduler)
@@ -147,24 +147,6 @@ class Trainer(object):
         output_batch = self.__model(input_batch)
         return input_batch, output_batch, label_batch
 
-    @staticmethod
-    def print_now_time(info):
-        now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print('==========' * 10)
-        print('%s' % now_time)
-        print(str(info))
-
-    @staticmethod
-    def setup_seed(seed=42):
-        os.environ['PYTHONHASHSEED'] = str(seed)
-
-        torch.manual_seed(seed)
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
-
-        np.random.seed(seed)
-        random.seed(seed)
-
     def __compute_metrics(self, output_batch, label_batch, is_train):
         # you can call functions in metrics_interface.py
         loss = self.__calculate_loss(output_batch, label_batch)
@@ -183,6 +165,24 @@ class Trainer(object):
     def __evaluate_accuracy(self, output_batch: torch.Tensor, label_batch: torch.Tensor) -> float:
         acc = self.__acc_function(output_batch, label_batch)
         return acc
+
+    @staticmethod
+    def __print_now_time(info):
+        now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print('==========' * 10)
+        print('%s' % now_time)
+        print(str(info))
+
+    @staticmethod
+    def __setup_seed(seed=42):
+        os.environ['PYTHONHASHSEED'] = str(seed)
+
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+
+        np.random.seed(seed)
+        random.seed(seed)
 
     @staticmethod
     def __gen_imgs_to_write(img, is_train):
