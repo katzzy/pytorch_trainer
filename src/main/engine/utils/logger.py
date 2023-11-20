@@ -68,7 +68,7 @@ class Logger:
             self.__writer.add_image(name, self.__tensor2img(names2imgs[name]), epoch)
 
     def print_logs(self, epoch, execution_time):
-        print('summary:')
+        print('Summary:')
         kvs = self.__recoder.summary()
         for key in kvs.keys():
             self.__writer.add_scalar(key, kvs[key], epoch)
