@@ -1,7 +1,7 @@
 import os
 import torch
+import wandb
 from pathlib import Path
-from torch.utils.tensorboard import SummaryWriter
 
 
 class Recoder:
@@ -36,7 +36,17 @@ class Logger:
     def __init__(self, args):
         logs_path = os.path.join(args.checkpoints_dir, 'logs')
         logs_path = Path(logs_path).as_posix()
-        self.__writer = SummaryWriter(logs_path)
+        if not os.path.exists(logs_path):
+            os.makedirs(logs_path, exist_ok=True)
+        # start a new wandb run to track this script
+        wandb.init(
+            # set the wandb project where this run will be logged
+            project="paddy-doctor",
+
+            dir=logs_path,
+            # track hyperparameters and run metadata
+            config=args.__dict__
+        )
         self.__recoder = Recoder()
         self.__checkpoints_dir = args.checkpoints_dir
         self.__gpus = args.gpus
@@ -59,23 +69,25 @@ class Logger:
         self.__recoder.clear_metrics()
 
     def save_curves(self, epoch):
-        kvs = self.__recoder.summary()
-        for key in kvs.keys():
-            self.__writer.add_scalar(key, kvs[key], epoch)
+        pass
 
     def save_imgs(self, names2imgs, epoch):
-        for name in names2imgs.keys():
-            self.__writer.add_image(name, self.__tensor2img(names2imgs[name]), epoch)
+        pass
+
+    @staticmethod
+    def finish_wandb():
+        wandb.finish()
 
     def print_logs(self, epoch, execution_time):
         print('Summary:')
         kvs = self.__recoder.summary()
         for key in kvs.keys():
-            self.__writer.add_scalar(key, kvs[key], epoch)
+            wandb.log({key: kvs[key]}, step=epoch)
             print(key + ' = {}'.format(kvs[key]))
         print('Execution time(in secs) = {}'.format(execution_time))
         [self.best_acc, self.best_acc_epoch] = [kvs['val/accuracy'], epoch] \
             if kvs['val/accuracy'] > self.best_acc else [self.best_acc, self.best_acc_epoch]
+        wandb.log({'best_acc': self.best_acc}, step=epoch)
         print('Best accuracy = {} in epoch = {}'.format(self.best_acc, self.best_acc_epoch))
 
     def save_checkpoint(self, epoch, model, optimizer, scheduler):

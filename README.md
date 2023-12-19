@@ -33,9 +33,9 @@ Set git bash as your default shell in windows.
 
 ### 1, Install requirements
 
-`pip install tensorboard`
+`conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch`
 
-`conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch pyyaml pandas tqdm`
+`conda install pyyaml pandas tqdm wandb --channel conda-forge`
 
 ### 2, Put your dataset to `./dataset`
 
@@ -81,12 +81,12 @@ Every row of submission file should already have an ID
 
 This project is base on 
 
+* [pytorch/pytorch](https://github.com/pytorch/pytorch)
+
+* [wandb/wandb](https://github.com/wandb/wandb)
+
+* [yaml/pyyaml](https://github.com/yaml/pyyaml)
+
 * [ahangchen/torch_base](https://github.com/ahangchen/torch_base)
 
 * [lyhue1991/eat_pytorch_in_20_days](https://github.com/lyhue1991/eat_pytorch_in_20_days)
-
-* [pytorch/pytorch](https://github.com/pytorch/pytorch)
-
-* [tensorflow/tensorboard](https://github.com/tensorflow/tensorboard)
-
-* [yaml/pyyaml](https://github.com/yaml/pyyaml)

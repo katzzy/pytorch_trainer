@@ -94,6 +94,7 @@ class Trainer(object):
             self.__logger.save_checkpoint(epoch, self.__model, self.__optimizer, self.scheduler)
             self.__logger.print_logs(epoch, (datetime.datetime.now() - start_time).seconds)
             self.__logger.clear_scalar_cache()
+        self.__logger.finish_wandb()
 
     def __train_per_epoch(self):
         print('Train:')
