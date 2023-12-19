@@ -4,10 +4,10 @@ from options.config_argument_parser import ConfigArgumentParser
 
 
 def save_args(args, save_dir):
-    args_path = os.path.join(save_dir, 'args.txt')
+    args_path = os.path.join(save_dir, 'args.yaml')
     args_path = Path(args_path).as_posix()
     with open(args_path, 'w') as fd:
-        fd.write(str(args).replace(', ', ',\n'))
+        fd.write(str(args.__dict__).replace(', ', '\n').replace('{', '').replace('}', ''))
 
 
 def get_train_model_dir(args):

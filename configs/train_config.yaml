@@ -1,17 +1,17 @@
-seed: 42
-gpus: [0]
-epochs: 100
-batch_size: 128
-lr: 1e-3
-momentum: 0.9
-beta: 0.999
-weight_decay: 0
-save_prefix: "experiment 1"
-model_type: "base_model"
-loss_type: "focal_loss"
-acc_type: "classification_acc"
-is_load_strict: true
-pretrained_weights_path:
-checkpoint_path:
-dataset_dir: "../../dataset/paddy-disease-classification/"
-checkpoints_dir:
+'seed': 42
+'gpus': [0]
+'epochs': 100
+'batch_size': 128
+'lr': 0.001
+'momentum': 0.9
+'beta': 0.999
+'weight_decay': 0
+'save_prefix': 'experiment 1'
+'model_type': 'base_model'
+'loss_type': 'focal_loss'
+'acc_type': 'classification_acc'
+'is_load_strict': True
+'pretrained_weights_path':
+'checkpoint_path':
+'dataset_dir': '../../dataset/paddy-disease-classification/'
+'checkpoints_dir':
