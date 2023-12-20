@@ -192,7 +192,7 @@ class Trainer(object):
         random.seed(seed)
 
     @staticmethod
-    def __gen_imgs_to_write(img, is_train):
+    def __gen_img_to_write(img, is_train):
         # override this method according to your visualization
         prefix = 'train/' if is_train else 'val/'
         return {
