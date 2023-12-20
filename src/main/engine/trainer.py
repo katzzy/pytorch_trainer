@@ -84,17 +84,23 @@ class Trainer(object):
         print('==========' * 10)
 
     def train(self):
-        print('>>>Start Train')
-        for epoch in range(self.__start_epoch, self.__end_epoch + 1):
-            # train for one epoch
-            start_time = datetime.datetime.now()
-            self.__print_now_time('Epoch {0} / {1}'.format(epoch, self.__end_epoch))
-            self.__train_per_epoch()
-            self.__val_per_epoch()
-            self.__logger.save_checkpoint(epoch, self.__model, self.__optimizer, self.scheduler)
-            self.__logger.print_logs(epoch, (datetime.datetime.now() - start_time).seconds)
-            self.__logger.clear_scalar_cache()
-        self.__logger.finish_wandb()
+        try:
+            print('>>>Start Train')
+            for epoch in range(self.__start_epoch, self.__end_epoch + 1):
+                # train for one epoch
+                start_time = datetime.datetime.now()
+                self.__print_now_time('Epoch {0} / {1}'.format(epoch, self.__end_epoch))
+                self.__train_per_epoch()
+                self.__val_per_epoch()
+                self.__logger.save_checkpoint(epoch, self.__model, self.__optimizer, self.scheduler)
+                self.__logger.print_logs(epoch, (datetime.datetime.now() - start_time).seconds)
+                self.__logger.clear_scalar_cache()
+        except KeyboardInterrupt:
+            print('>>>Keyboard Interrupt')
+            self.__logger.finish_wandb()
+        else:
+            print('>>>Finished Train')
+            self.__logger.finish_wandb()
 
     def __train_per_epoch(self):
         print('Train:')
