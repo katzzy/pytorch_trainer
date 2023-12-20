@@ -101,8 +101,6 @@ class Logger:
         print('Best Accuracy: {} in epoch {}'.format(self.best_acc, self.best_acc_epoch))
 
     def save_checkpoint(self, epoch, model, optimizer, scheduler):
-        weights_name = 'weights_{epoch:03d}.pth'.format(epoch=epoch)
-        checkpoint_name = 'checkpoint_{epoch:03d}.tar'.format(epoch=epoch)
         weights_files_dir = os.path.join(self.__checkpoints_dir, 'weights_files')
         weights_files_dir = Path(weights_files_dir).as_posix()
         if not os.path.exists(weights_files_dir):
@@ -111,6 +109,8 @@ class Logger:
         checkpoint_files_dir = Path(checkpoint_files_dir).as_posix()
         if not os.path.exists(checkpoint_files_dir):
             os.makedirs(checkpoint_files_dir, exist_ok=True)
+        weights_name = 'weights_{epoch:03d}.pth'.format(epoch=epoch)
+        checkpoint_name = 'checkpoint_{epoch:03d}.tar'.format(epoch=epoch)
         weights_path = os.path.join(weights_files_dir, weights_name)
         weights_path = Path(weights_path).as_posix()
         checkpoint_path = os.path.join(checkpoint_files_dir, checkpoint_name)
@@ -131,6 +131,9 @@ class Logger:
                 'epoch': epoch,
                 'model_state_dict': model.module.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
+                'scheduler_state_dict': scheduler.state_dict(),
+                'best_acc': self.best_acc,
+                'best_acc_epoch': self.best_acc_epoch,
             }
             torch.save(model.module.state_dict(), weights_path)
             torch.save(checkpoint, checkpoint_path)
