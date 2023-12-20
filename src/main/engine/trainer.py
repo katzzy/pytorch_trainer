@@ -78,6 +78,7 @@ class Trainer(object):
             if param.requires_grad:
                 print(name)
         print('==========' * 10)
+        print('Wandb Mode: {}'.format(args.is_wandb_on))
         print('Train Mode: {}'.format(train_mode))
         print('GPU Mode: {}'.format(gpu_mode))
         print('==========' * 10)
@@ -95,7 +96,9 @@ class Trainer(object):
                 self.__train_per_epoch()
                 self.__val_per_epoch()
                 self.__logger.save_checkpoint(epoch, self.__model, self.__optimizer, self.scheduler)
-                self.__logger.print_logs(epoch, (datetime.datetime.now() - since_time).seconds)
+                self.__logger.summary(epoch)
+                self.__logger.save_curves(epoch)
+                self.__logger.print_logs((datetime.datetime.now() - since_time).seconds)
                 self.__logger.clear_scalar_cache()
         except KeyboardInterrupt:
             print('=> Interrupted Training!')

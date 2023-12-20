@@ -25,6 +25,8 @@ def get_train_model_dir(args):
 
 def prepare_train_args():
     train_parser = ConfigArgumentParser()
+    train_parser.add_override_argument('--is_wandb_on', action='store_false',
+                                       help='whether to use wandb')
     train_parser.add_override_argument('--seed', type=int,
                                        help='a random seed')
     train_parser.add_override_argument('--gpus', nargs='+', type=int,

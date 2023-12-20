@@ -34,22 +34,27 @@ class Recoder:
 
 class Logger:
     def __init__(self, args):
+        self.__recoder = Recoder()
+        self.__kvs = {}
+        self.__checkpoints_dir = args.checkpoints_dir
+        self.__gpus = args.gpus
+        self.__is_wandb_on = args.is_wandb_on
+        self.best_acc = 0
+        self.best_acc_epoch = 0
         logs_path = os.path.join(args.checkpoints_dir, 'logs')
         logs_path = Path(logs_path).as_posix()
         if not os.path.exists(logs_path):
             os.makedirs(logs_path, exist_ok=True)
-        wandb.init(
-            project="paddy-doctor",
-            job_type="training",
-            tags=args.tags,
-            dir=logs_path,
-            config=args.__dict__
-        )
-        self.__recoder = Recoder()
-        self.__checkpoints_dir = args.checkpoints_dir
-        self.__gpus = args.gpus
-        self.best_acc = 0
-        self.best_acc_epoch = 0
+        if self.__is_wandb_on:
+            wandb.init(
+                project="paddy-doctor",
+                job_type="training",
+                tags=args.tags,
+                dir=logs_path,
+                config=args.__dict__
+            )
+        else:
+            pass
 
     def set_best_score(self, best_acc, best_acc_epoch):
         self.best_acc = best_acc
@@ -66,27 +71,34 @@ class Logger:
     def clear_scalar_cache(self):
         self.__recoder.clear_metrics()
 
+    def summary(self, epoch):
+        self.__kvs = self.__recoder.summary()
+        [self.best_acc, self.best_acc_epoch] = [self.__kvs['val/accuracy'], epoch] \
+            if self.__kvs['val/accuracy'] > self.best_acc else [self.best_acc, self.best_acc_epoch]
+
     def save_curves(self, epoch):
-        pass
+        if self.__is_wandb_on:
+            for key in self.__kvs.keys():
+                wandb.log({key: self.__kvs[key]}, step=epoch)
+            wandb.log({'best_accuracy': self.best_acc}, step=epoch)
+        else:
+            pass
 
     def save_imgs(self, names2imgs, epoch):
         pass
 
-    @staticmethod
-    def finish_wandb():
-        wandb.finish()
+    def finish_wandb(self):
+        if self.__is_wandb_on:
+            wandb.finish()
+        else:
+            pass
 
-    def print_logs(self, epoch, execution_time):
+    def print_logs(self, execution_time):
         print('Summary:')
-        kvs = self.__recoder.summary()
-        for key in kvs.keys():
-            wandb.log({key: kvs[key]}, step=epoch)
-            print(key + ' = {}'.format(kvs[key]))
-        print('Execution time(in secs) = {}'.format(execution_time))
-        [self.best_acc, self.best_acc_epoch] = [kvs['val/accuracy'], epoch] \
-            if kvs['val/accuracy'] > self.best_acc else [self.best_acc, self.best_acc_epoch]
-        wandb.log({'best_acc': self.best_acc}, step=epoch)
-        print('Best accuracy = {} in epoch = {}'.format(self.best_acc, self.best_acc_epoch))
+        for key in self.__kvs.keys():
+            print('{} = {}'.format(key, self.__kvs[key]))
+        print('Execution Time: {}s'.format(execution_time))
+        print('Best Accuracy: {} in epoch {}'.format(self.best_acc, self.best_acc_epoch))
 
     def save_checkpoint(self, epoch, model, optimizer, scheduler):
         weights_name = 'weights_{epoch:03d}.pth'.format(epoch=epoch)
