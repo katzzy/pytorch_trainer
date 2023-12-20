@@ -23,27 +23,28 @@ class Trainer(object):
         self.__start_epoch = 1
         self.__end_epoch = args.epochs
 
-        train_mode = 'Normal'
+        train_mode = 'Train'
         train_status_logs = []
 
         # loading model
         self.__model = model
         if args.pretrained_weights_path is not None:
-            train_mode = 'Transfer learning'
+            train_mode = 'Finetune'
             self.__model.load_state_dict(torch.load(args.pretrained_weights_path), strict=args.is_load_strict)
-            train_status_logs.append('>>> Loaded pretrained weights successfully!')
+            train_status_logs.append('Load pretrained weights from {}'.format(args.pretrained_weights_path))
 
         if args.checkpoint_path is not None:
-            train_mode = 'Resume training from checkpoint'
+            train_mode = 'Resume'
             checkpoint = torch.load(args.checkpoint_path)
             self.__start_epoch = checkpoint['epoch'] + 1
             self.__model.load_state_dict(checkpoint['model_state_dict'], strict=args.is_load_strict)
             self.__logger.set_best_score(checkpoint['best_acc'], checkpoint['best_acc_epoch'])
-            train_status_logs.append('>>> Resumed previous model state successfully!')
-            train_status_logs.append('>>> Resumed previous best score successfully!')
+            train_status_logs.append('Load checkpoint from {}'.format(args.checkpoint_path))
+            train_status_logs.append('Load best score: {0:.4f} at epoch {1}'.format(checkpoint['best_acc'],
+                                                                                    checkpoint['best_acc_epoch']))
 
         if len(args.gpus) == 0:
-            gpu_mode = 'None-GPU'
+            gpu_mode = 'CPU'
             self.device = torch.device('cpu')
             pass
         elif len(args.gpus) == 1:
@@ -52,7 +53,7 @@ class Trainer(object):
             self.__model.to(self.device)
         else:
             gpu_mode = 'Multi-GPU'
-            self.__model = torch.nn.DataParallel(self.__model, device_ids=args.gpus, output_device=args.gpus[0])
+            self.__model = torch.nn.DataParallel(self.__model, device_ids=args.gpus)
 
         # initialize the optimizer
         self.__optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, self.__model.parameters()),
@@ -64,42 +65,43 @@ class Trainer(object):
             checkpoint = torch.load(args.checkpoint_path)
             self.__optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
             self.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-            train_status_logs.append('>>> Resumed previous optimizer state successfully')
-            train_status_logs.append('>>> Resumed previous scheduler state successfully')
+            train_status_logs.append('Load optimizer from {}'.format(args.checkpoint_path))
+            train_status_logs.append('Load scheduler from {}'.format(args.checkpoint_path))
 
         # print status
         print('==========' * 10)
         print('Model:')
         print(self.__model)
         print('==========' * 10)
-        print('Params To Learn:')
+        print('Trainable Parameters:')
         for name, param in self.__model.named_parameters():
             if param.requires_grad:
-                print('\t', name)
+                print(name)
         print('==========' * 10)
-        print('Train Mode: ' + train_mode)
-        print('GPU   Mode: ' + gpu_mode)
-        for train_status_log in train_status_logs:
-            print(train_status_log)
+        print('Train Mode: {}'.format(train_mode))
+        print('GPU Mode: {}'.format(gpu_mode))
+        print('==========' * 10)
+        for log in train_status_logs:
+            print(log)
         print('==========' * 10)
 
     def train(self):
         try:
-            print('>>>Start Train')
+            print('start training...')
             for epoch in range(self.__start_epoch, self.__end_epoch + 1):
                 # train for one epoch
-                start_time = datetime.datetime.now()
+                since_time = datetime.datetime.now()
                 self.__print_now_time('Epoch {0} / {1}'.format(epoch, self.__end_epoch))
                 self.__train_per_epoch()
                 self.__val_per_epoch()
                 self.__logger.save_checkpoint(epoch, self.__model, self.__optimizer, self.scheduler)
-                self.__logger.print_logs(epoch, (datetime.datetime.now() - start_time).seconds)
+                self.__logger.print_logs(epoch, (datetime.datetime.now() - since_time).seconds)
                 self.__logger.clear_scalar_cache()
         except KeyboardInterrupt:
-            print('>>>Keyboard Interrupt')
+            print('=> Interrupted Training!')
             self.__logger.finish_wandb()
         else:
-            print('>>>Finished Train')
+            print('=> Finished Training!')
             self.__logger.finish_wandb()
 
     def __train_per_epoch(self):
@@ -177,8 +179,7 @@ class Trainer(object):
     def __print_now_time(info):
         now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         print('==========' * 10)
-        print('%s' % now_time)
-        print(str(info))
+        print('[{0}] {1}'.format(now_time, info))
 
     @staticmethod
     def __setup_seed(seed=42):
