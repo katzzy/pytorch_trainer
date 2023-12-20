@@ -38,13 +38,11 @@ class Logger:
         logs_path = Path(logs_path).as_posix()
         if not os.path.exists(logs_path):
             os.makedirs(logs_path, exist_ok=True)
-        # start a new wandb run to track this script
         wandb.init(
-            # set the wandb project where this run will be logged
             project="paddy-doctor",
-
+            job_type="training",
+            tags=args.tags,
             dir=logs_path,
-            # track hyperparameters and run metadata
             config=args.__dict__
         )
         self.__recoder = Recoder()

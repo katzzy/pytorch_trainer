@@ -1,5 +1,5 @@
 seed: 42
-gpus: [0]
+gpus: []
 epochs: 100
 batch_size: 128
 lr: 0.001
@@ -7,6 +7,9 @@ momentum: 0.9
 beta: 0.999
 weight_decay: 0
 save_prefix: 'experiment 1'
+tags:
+  - 'baseline'
+  - 'focal_loss'
 model_type: 'base_model'
 loss_type: 'focal_loss'
 acc_type: 'classification_acc'
