@@ -1,6 +1,6 @@
 *.pyc
-.idea/
+.idea/*
 dataset/*
-checkpoints/
-logs/
+checkpoints/*
 submissions/*
+node_modules/*
