@@ -11,12 +11,3 @@ def select_model(args):
     }
     model = type2model[args.model_type]
     return model
-
-
-def main():
-    my_net = better_model()
-    print(my_net)
-
-
-if __name__ == '__main__':
-    main()

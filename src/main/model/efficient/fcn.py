@@ -19,14 +19,3 @@ def efficient_model():
     )
 
     return finetune_net
-
-
-def main():
-    my_net = efficient_model()
-    print(my_net)
-    for i, name_param in enumerate(my_net.named_parameters()):
-        print(i, name_param)
-
-
-if __name__ == '__main__':
-    main()

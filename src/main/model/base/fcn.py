@@ -17,11 +17,3 @@ def base_model():
         param.requires_grad = True
 
     return finetune_net
-
-
-def main():
-    pass
-
-
-if __name__ == '__main__':
-    main()

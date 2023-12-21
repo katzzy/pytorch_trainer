@@ -52,11 +52,3 @@ class Splitter(object):
     def split_dataset(self):
         self.__split_train_valid(self.__args.valid_ratio)
         self.__organize_test()
-
-
-def main():
-    pass
-
-
-if __name__ == '__main__':
-    main()

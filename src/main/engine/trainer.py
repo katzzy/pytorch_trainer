@@ -202,11 +202,3 @@ class Trainer(object):
         return {
             prefix + 'img': img[0],
         }
-
-
-def main():
-    pass
-
-
-if __name__ == '__main__':
-    main()

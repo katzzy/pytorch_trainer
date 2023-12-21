@@ -60,11 +60,3 @@ class Predictor(object):
             df.iloc[index, 1] = (labels_map[label_test.item()])
         print(df)
         df.to_csv(self.__args.submission_file_path, index=False)
-
-
-def main():
-    pass
-
-
-if __name__ == '__main__':
-    main()

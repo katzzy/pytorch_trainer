@@ -32,13 +32,3 @@ def better_model():
     #     param.requires_grad = True
 
     return finetune_net
-
-
-def main():
-    my_net = better_model()
-    print(my_net)
-    pass
-
-
-if __name__ == '__main__':
-    main()

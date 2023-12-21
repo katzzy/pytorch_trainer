@@ -26,14 +26,3 @@ class ConfigArgumentParser(argparse.ArgumentParser):
             self.set_defaults(**config_vars)
 
         return super().parse_args(remaining_argv)
-
-
-def main():
-    parser = ConfigArgumentParser()
-    parser.add_override_argument('--gpus', nargs='+', type=int, help='numbers of GPU')
-    args = parser.parse_args()
-    print(args)
-
-
-if __name__ == '__main__':
-    main()
