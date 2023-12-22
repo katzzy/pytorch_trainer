@@ -6,9 +6,10 @@
 ├── configs
 ├── dataset
 ├── submissions
+├── package-lock.json
+├── package.json
 ├── run_predict.sh
 ├── run_split_dataset.sh
-├── run_tensorboard.sh
 ├── run_train.sh
 ├── LICENSE
 ├── README.md
