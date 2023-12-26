@@ -9,7 +9,7 @@ elif [ "$osName" = "Linux" ]; then
   source /home/korbin/miniconda3/bin/activate pytorch;
 elif [ "$osName" = "MINGW64_NT" ]; then
   echo "Current system is Windows!";
-  source D:/miniconda3/Scripts/activate pytorch;
+  source D:/development/environment/miniconda3/Scripts/activate pytorch;
 else
   echo "Current system is not supported!";
   exit;
