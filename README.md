@@ -58,8 +58,9 @@ Ensure you have the following installed on your local machine:
 To install the necessary dependencies, run the following commands:
 
 ```bash
-conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch
-conda install pyyaml pandas tqdm wandb --channel conda-forge
+conda create -n pytorch python=3.9
+conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+conda install pyyaml pandas tqdm wandb -c conda-forge
 ```
 
 ## Usage
