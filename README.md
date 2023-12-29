@@ -59,6 +59,7 @@ To install the necessary dependencies, run the following commands:
 
 ```bash
 conda create -n pytorch python=3.9
+conda activate pytorch
 conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
 conda install pyyaml pandas tqdm wandb -c conda-forge
 ```
