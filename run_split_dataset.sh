@@ -3,13 +3,13 @@ uNames=$(uname -s);
 osName=${uNames:0:10};
 if [ "$osName" = "Darwin" ]; then
   echo "Current system is macOS!";
-  source activate pytorch;
+  conda activate pytorch;
 elif [ "$osName" = "Linux" ]; then
   echo "Current system is Linux!";
-  source /home/korbin/miniconda3/bin/activate pytorch;
+  conda activate pytorch;
 elif [ "$osName" = "MINGW64_NT" ]; then
   echo "Current system is Windows!";
-  source D:/miniconda3/Scripts/activate pytorch;
+  conda activate pytorch;
 else
   echo "Current system is not supported!";
   exit;
