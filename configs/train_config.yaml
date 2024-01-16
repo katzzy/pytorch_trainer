@@ -7,15 +7,15 @@ lr: 0.001
 momentum: 0.9
 beta: 0.999
 weight_decay: 0
-save_prefix: 'experiment 1'
+save_prefix: "experiment 1"
 tags:
-  - 'baseline'
-  - 'focal_loss'
-model_type: 'base_model'
-loss_type: 'focal_loss'
-acc_type: 'classification_acc'
+  - "baseline"
+  - "focal_loss"
+model_type: "base_model"
+loss_type: "focal_loss"
+acc_type: "classification_acc"
 is_load_strict: true
 pretrained_weights_path:
 checkpoint_path:
-dataset_dir: '../../dataset/paddy-disease-classification/'
+dataset_dir: "../../dataset/paddy-disease-classification/"
 checkpoints_dir:
