@@ -60,11 +60,11 @@ class Trainer(object):
                                             args.lr, betas=(args.momentum, args.beta),
                                             weight_decay=args.weight_decay)
 
-        self.scheduler = torch.optim.lr_scheduler.StepLR(self.__optimizer, step_size=30, gamma=0.1)
+        self.__scheduler = torch.optim.lr_scheduler.StepLR(self.__optimizer, step_size=30, gamma=0.1)
         if args.checkpoint_path is not None:
             checkpoint = torch.load(args.checkpoint_path)
             self.__optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-            self.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+            self.__scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
             train_status_logs.append('Load optimizer from {}'.format(args.checkpoint_path))
             train_status_logs.append('Load scheduler from {}'.format(args.checkpoint_path))
 
@@ -95,7 +95,7 @@ class Trainer(object):
                 self.__print_now_time('Epoch {0} / {1}'.format(epoch, self.__end_epoch))
                 self.__train_per_epoch()
                 self.__val_per_epoch()
-                self.__logger.save_checkpoint(epoch, self.__model, self.__optimizer, self.scheduler)
+                self.__logger.save_checkpoint(epoch, self.__model, self.__optimizer, self.__scheduler)
                 self.__logger.summary(epoch)
                 self.__logger.save_curves(epoch)
                 self.__logger.print_logs((datetime.datetime.now() - since_time).seconds)
@@ -128,7 +128,7 @@ class Trainer(object):
                 self.__logger.record_scalar(key, metrics[key])
             loop.set_postfix(**metrics)
         loop.close()
-        self.scheduler.step()
+        self.__scheduler.step()
 
     @torch.no_grad()
     def __val_per_epoch(self):
